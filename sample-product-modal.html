@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Modal Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f7f7f7;
+    }
+    .product-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 40px 10px;
+    }
+    .product-item {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 16px;
+      width: 260px;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .product-item:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .product-item img {
+      width: 100%;
+      max-width: 200px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .product-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .product-price {
+      color: #2a8f3c;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      max-width: 95vw;
+      width: 400px;
+      padding: 24px 18px 18px 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      position: relative;
+      animation: modalIn 0.2s;
+    }
+    @keyframes modalIn {
+      from { transform: translateY(40px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 1.5rem;
+      color: #888;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+    }
+    .modal-img {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 8px;
+      margin: 0 auto 16px auto;
+      display: block;
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .modal-specs {
+      font-size: 0.98rem;
+      color: #444;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .modal-price {
+      color: #2a8f3c;
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    .buy-now-btn {
+      display: block;
+      width: 100%;
+      background: #2a8f3c;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 0;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .buy-now-btn:hover {
+      background: #21732e;
+    }
+    @media (max-width: 600px) {
+      .product-list {
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 2px;
+      }
+      .modal {
+        width: 98vw;
+        padding: 14px 4px 12px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="product-list">
+    <div class="product-item" 
+      data-title="Super Widget" 
+      data-image="https://via.placeholder.com/320x200?text=Super+Widget" 
+      data-specs="- High performance\n- Energy efficient\n- 2-year warranty" 
+      data-price="$49.99">
+      <img src="https://via.placeholder.com/200x120?text=Super+Widget" alt="Super Widget">
+      <div class="product-title">Super Widget</div>
+      <div class="product-price">$49.99</div>
+    </div>
+    <!-- Add more .product-item blocks as needed -->
+  </div>
+
+  <!-- Modal Structure -->
+  <div class="modal-overlay" id="productModalOverlay">
+    <div class="modal" id="productModal">
+      <button class="modal-close" id="modalCloseBtn" aria-label="Close">&times;</button>
+      <img class="modal-img" id="modalImg" src="" alt="Product image">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-specs" id="modalSpecs"></div>
+      <div class="modal-price" id="modalPrice"></div>
+      <button class="buy-now-btn" id="buyNowBtn">Buy Now</button>
+    </div>
+  </div>
+
+  <script>
+    // Modal logic
+    const modalOverlay = document.getElementById('productModalOverlay');
+    const modal = document.getElementById('productModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalImg = document.getElementById('modalImg');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSpecs = document.getElementById('modalSpecs');
+    const modalPrice = document.getElementById('modalPrice');
+    const buyNowBtn = document.getElementById('buyNowBtn');
+
+    // Open modal with product data
+    document.querySelectorAll('.product-item').forEach(item => {
+      item.addEventListener('click', function() {
+        modalImg.src = this.dataset.image;
+        modalImg.alt = this.dataset.title;
+        modalTitle.textContent = this.dataset.title;
+        modalSpecs.innerHTML = this.dataset.specs.replace(/\n/g, '<br>');
+        modalPrice.textContent = this.dataset.price;
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent background scroll
+      });
+    });
+
+    // Close modal function
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Close on X button
+    modalCloseBtn.addEventListener('click', closeModal);
+    // Close on overlay click (but not modal itself)
+    modalOverlay.addEventListener('click', function(e) {
+      if (e.target === modalOverlay) closeModal();
+    });
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
+    });
+    // Buy Now button
+    buyNowBtn.addEventListener('click', function() {
+      console.log('Buy Now clicked for', modalTitle.textContent);
+      alert('Buy Now clicked for ' + modalTitle.textContent);
+    });
+  </script>
+</body>
+</html>
