@@ -378,3 +378,76 @@ BEGIN
     FROM contact_messages;
 END//
 DELIMITER ;
+
+-- ===== KATEGORİLER TABLOSU =====
+CREATE TABLE IF NOT EXISTS kategoriler (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ad VARCHAR(100) NOT NULL,
+    aciklama TEXT,
+    tur ENUM('telefon', 'aksesuar') NOT NULL,
+    aktif BOOLEAN DEFAULT TRUE
+);
+
+-- ===== ÜRÜNLER TABLOSU =====
+CREATE TABLE IF NOT EXISTS urunler (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kategori_id INT NOT NULL,
+    ad VARCHAR(100) NOT NULL,
+    aciklama TEXT,
+    teknik_ozellikler TEXT,
+    fiyat DECIMAL(10,2) NOT NULL,
+    resim VARCHAR(255),
+    marka VARCHAR(50),
+    stok INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (kategori_id) REFERENCES kategoriler(id)
+);
+
+-- ===== AKSESUARLAR TABLOSU =====
+CREATE TABLE IF NOT EXISTS aksesuarlar (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kategori_id INT NOT NULL,
+    ad VARCHAR(100) NOT NULL,
+    aciklama TEXT,
+    fiyat DECIMAL(10,2) NOT NULL,
+    resim VARCHAR(255),
+    stok INT DEFAULT 0,
+    aktif BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (kategori_id) REFERENCES kategoriler(id)
+);
+
+-- ===== SEPET TABLOSU =====
+CREATE TABLE IF NOT EXISTS sepet (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kullanici_id INT NOT NULL,
+    urun_id INT,
+    aksesuar_id INT,
+    adet INT DEFAULT 1,
+    eklenme_tarihi TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (kullanici_id) REFERENCES users(id),
+    FOREIGN KEY (urun_id) REFERENCES urunler(id),
+    FOREIGN KEY (aksesuar_id) REFERENCES aksesuarlar(id)
+);
+
+-- ===== SİPARİŞLER TABLOSU =====
+CREATE TABLE IF NOT EXISTS siparisler (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    kullanici_id INT NOT NULL,
+    toplam_tutar DECIMAL(10,2) NOT NULL,
+    durum ENUM('hazırlanıyor', 'kargoda', 'tamamlandı', 'iptal') DEFAULT 'hazırlanıyor',
+    siparis_tarihi TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (kullanici_id) REFERENCES users(id)
+);
+
+-- ===== SİPARİŞ DETAY TABLOSU =====
+CREATE TABLE IF NOT EXISTS siparis_detay (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    siparis_id INT NOT NULL,
+    urun_id INT,
+    aksesuar_id INT,
+    adet INT DEFAULT 1,
+    birim_fiyat DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (siparis_id) REFERENCES siparisler(id),
+    FOREIGN KEY (urun_id) REFERENCES urunler(id),
+    FOREIGN KEY (aksesuar_id) REFERENCES aksesuarlar(id)
+);
